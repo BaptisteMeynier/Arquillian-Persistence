@@ -1,0 +1,16 @@
+book:
+  - id: 1
+    name: Contes à Ninon
+    price: 10
+  - id: 2
+    name: La Confession de Claude
+    price: 5
+  - id: 3
+    name: Mes haines
+    price: 8
+  - id: 4
+    name: Les Mystères de Marseille
+    price: 2
+  - id: 5
+    name: La Fortune des rougon
+    price: 15
