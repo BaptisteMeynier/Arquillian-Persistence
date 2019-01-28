@@ -15,6 +15,18 @@
     </container>
 
     <extension qualifier="persistence">
-        <property name="defaultDataSource">java:/jdbc/market/bookDs</property>
+        <property name="defaultDataSource">java:jboss/datasources/ExampleDS</property>
     </extension>
+
+    <extension qualifier="persistence-script">
+        <property name="scriptsToExecuteBeforeTest">init.sql</property>
+    </extension>
+
+    <!--extension qualifier="persistence-dbunit">
+        <property name="datatypeFactory">org.dbunit.ext.mssql.MsSqlDataTypeFactory</property>
+        <property name="useIdentityInsert">true</property>
+        <property name="excludePoi">true</property>
+    </extension-->
+
+
 </arquillian>

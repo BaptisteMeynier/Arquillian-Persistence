@@ -2,6 +2,7 @@ package com.javaee8.rest;
 
 
 import org.arquillian.ape.api.UsingDataSet;
+import org.arquillian.ape.rdbms.ShouldMatchDataSet;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
@@ -14,66 +15,51 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import javax.inject.Inject;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RunWith(Arquillian.class)
 public class BookResourceIT {
     @Deployment
     public static WebArchive createDeployment() {
         return ShrinkWrap.create(WebArchive.class)
-                .addClass(MarketApplication.class)
-                .addClass(BookResource.class)
+                .addClass(Book.class)
                 .addClass(Repository.class)
-                //.addAsResource("sql/insert.sql", "insert.sql")
-             //   .addAsResource("import.sql")
+                .addClass(DatasourceProducer.class)
+                .addAsResource("init.sql")
                 .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml");
     }
 
+    @Inject
+    private Repository repository;
 
+    @Test
     @UsingDataSet("datasets/books.yml")
-    public void should_get_books(){
-
-    }
-
-/*
-    @ArquillianResource
-    private URI deploymentUrl;
-
-    private Client client;
-    private WebTarget bookTarget;
-
-    @Before
-    public void init() {
-        client = ClientBuilder.newClient();
-        bookTarget = client.target(deploymentUrl).path("rest");
-    }
-*/
-/*
-    @Test
-    @RunAsClient
-    public void should_contact_book_endpoint(){
-        Response response =
-                bookTarget.path("book")
-                        .request(MediaType.APPLICATION_JSON_TYPE)
-                        .get();
-        Assert.assertEquals(200, response.getStatus());
+    public void should_get_books_name() {
+        List<String> books = repository.getBooksName();
+        Assert.assertTrue(books.contains("Mes haines"));
     }
 
     @Test
-    @RunAsClient
-    public void should_get_books(){
-        Response response =
-                bookTarget.path("book")
-                        .request(MediaType.APPLICATION_JSON_TYPE)
-                        .get();
-        String result = response.readEntity(String.class);
-        System.out.println(result);
-        Assert.assertTrue(result.contains("La metamorphose"));
+    @UsingDataSet("datasets/books.yml")
+    @ShouldMatchDataSet("datasets/expected-books.yml")
+    public void should_get_books_with_price_than_5() {
+        List<Book> books = repository.getBooks();
+        books.stream().filter(book -> book.getPrice() <= 5).forEach(book->repository.deleteBook(book.getId()));
     }
-*/
+
+    @Test
+    @UsingDataSet("datasets/books.yml")
+    @ShouldMatchDataSet("datasets/books.yml")
+    public void should_get_books() {
+        repository.getBooks();
+    }
+
 }
